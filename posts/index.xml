@@ -1,4 +1,82 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Leo Cheebin</title><link>https://678210.xyz/posts/</link><description>Recent content in Posts on Leo Cheebin</description><generator>Hugo -- gohugo.io</generator><language>en-US</language><lastBuildDate>Wed, 26 Jun 2024 20:14:55 +0800</lastBuildDate><atom:link href="https://678210.xyz/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>使用Nginx对TShock进行TCP/UDP代理</title><link>https://678210.xyz/nginx_stream_tshock/</link><pubDate>Wed, 26 Jun 2024 20:14:55 +0800</pubDate><guid>https://678210.xyz/nginx_stream_tshock/</guid><description>&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Leo Cheebin</title><link>https://678210.xyz/posts/</link><description>Recent content in Posts on Leo Cheebin</description><generator>Hugo -- gohugo.io</generator><language>en-US</language><lastBuildDate>Sat, 07 Feb 2026 23:55:39 +0800</lastBuildDate><atom:link href="https://678210.xyz/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>GitHub Action 推送 hugo 静态页面到 Github Pages</title><link>https://678210.xyz/github-action-%E6%8E%A8%E9%80%81-hugo-%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E5%88%B0-github-pages/</link><pubDate>Sat, 07 Feb 2026 23:55:39 +0800</pubDate><guid>https://678210.xyz/github-action-%E6%8E%A8%E9%80%81-hugo-%E9%9D%99%E6%80%81%E9%A1%B5%E9%9D%A2%E5%88%B0-github-pages/</guid><description>&lt;p&gt;我使用两个Github仓库分别管理Hugo博客的&lt;code&gt;源文件&lt;/code&gt;和&lt;code&gt;生成的静态文件&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;我的Hugo源文件（private）仓库：https://github.com/xxxxx/hugo&lt;/p&gt;
+&lt;p&gt;我的GitHub Pages（生成的静态文件，public）：https://github.com/xxxxx/xxxxx.github.io&lt;/p&gt;
+&lt;p&gt;由于之前每次生成新页面后都需要分别提交内容，很繁琐，故使用Github Action实现自动部署&lt;/p&gt;
+&lt;h3 id="生成-gh_pat"&gt;生成 GH_PAT&lt;/h3&gt;
+&lt;p&gt;在不同仓库间同步推送，需要申请Github PAT（Personal Access Token）&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;链接：https://github.com/settings/tokens
+→ Tokens (classic) → Generate new token (classic)&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;选择权限：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;repo（如果是私有仓库）
+&lt;ul&gt;
+&lt;li&gt;public_repo（如果是公有仓库）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="../static/20260208/1.png" alt="img.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;因为我的Hugo源文件是private仓库，故将repo权限全都勾选了，如果你的Hugo源文件是public仓库，则只需要勾选public_repo即可&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;在 Hugo源文件 仓库设置 → Secrets → Actions → 新建 secret，例如：&lt;code&gt;GH_PAT&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;img src="../static/20260208/2.png" alt="img.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="../static/20260208/3.png" alt=""&gt;&lt;/p&gt;
+&lt;h3 id="编写-workflows"&gt;编写 workflows&lt;/h3&gt;
+&lt;p&gt;文件存放位置 &lt;code&gt;.github/workflows/deploy-hugo.yml&lt;/code&gt;&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code class="language-aidl" data-lang="aidl"&gt;name: Build and Deploy Hugo to GitHub Pages
+on:
+push:
+branches:
+- main
+workflow_dispatch:
+jobs:
+deploy:
+runs-on: ubuntu-latest
+steps:
+- name: Checkout source
+uses: actions/checkout@v4
+with:
+submodules: recursive
+- name: Setup Hugo
+uses: peaceiris/actions-hugo@v3
+with:
+hugo-version: &amp;#39;0.153.4&amp;#39;
+extended: true
+- name: Build Hugo site
+run: hugo --minify
+- name: List generated files (debug)
+run: ls -R ./public
+- name: Deploy to GitHub Pages
+uses: peaceiris/actions-gh-pages@v3
+with:
+personal_token: ${{ secrets.GH_PAT }} # 此处务必配置成刚刚生成的 secret 名称（即GH_PAT）
+publish_dir: ./public
+publish_branch: gh-pages
+external_repository: xxxxxx/xxxxxxxxx.github.io
+user_name: &amp;#39;xxxxxx&amp;#39; # 用户名
+user_email: &amp;#39;xxxxxxxxx@gmail.com&amp;#39; # 邮箱
+commit_message: &amp;#39;Deploy Hugo site via GitHub Actions&amp;#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;要注意的地方：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;hugo-version&lt;/code&gt;: 可以配置成你的具体Hugo版本，如实在不清楚，可配置成 &lt;code&gt;latest&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;personal_token&lt;/code&gt;: 此处务必配置成刚刚生成的 &lt;code&gt;secret&lt;/code&gt; 名称（如我例子中的&lt;code&gt;GH_PAT&lt;/code&gt;），注意，不是PAT的值，PAT权限极高，永远不可以直接写在配置文件中&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;external_repository&lt;/code&gt;: 要推送的静态文件仓库地址&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;publish_dir&lt;/code&gt;: 你的Hugo配置文件 &lt;code&gt;config.toml&lt;/code&gt; 中的 &lt;code&gt;publishdir&lt;/code&gt; 值&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;publish_branch&lt;/code&gt;: 要推送到静态文件仓库地址的分支，且务必提前创建好，否则推送后不方便合并到主分支；不要直接推送到main/master分支&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;user_name&lt;/code&gt;: 用户名&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;user_email:&lt;/code&gt;: 邮箱&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;编写完后，将此配置文件推送到仓库中&lt;/p&gt;
+&lt;h3 id="提交代码"&gt;提交代码&lt;/h3&gt;
+&lt;p&gt;&lt;img src="../static/20260208/4.png" alt="img.png"&gt;&lt;/p&gt;
+&lt;p&gt;可看到&lt;code&gt;workflows&lt;/code&gt;执行成功&lt;/p&gt;
+&lt;p&gt;且GitHub Pages 仓库推送成功&lt;/p&gt;
+&lt;p&gt;&lt;img src="../static/20260208/5.png" alt="img.png"&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;后续还可以配置Vercel自动部署静态网站，等等。&lt;/p&gt;
+&lt;/blockquote&gt;</description></item><item><title>使用Nginx对TShock进行TCP/UDP代理</title><link>https://678210.xyz/nginx_stream_tshock/</link><pubDate>Wed, 26 Jun 2024 20:14:55 +0800</pubDate><guid>https://678210.xyz/nginx_stream_tshock/</guid><description>&lt;blockquote&gt;
 &lt;p&gt;给朋友分享自己的泰拉瑞亚服务，如果总是把服务器的ip暴露出去（如&lt;code&gt;172.xxx.xxx.120:7777&lt;/code&gt;），既不优雅，也不安全，如果能用自己的域名就好了&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h3 id="步骤1"&gt;步骤1&lt;/h3&gt;

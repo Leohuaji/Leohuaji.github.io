@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Leo Cheebin</title><link>https://678210.xyz/posts/</link><description>Recent content in Posts on Leo Cheebin</description><generator>Hugo -- gohugo.io</generator><language>en-US</language><lastBuildDate>Wed, 26 Jun 2024 20:14:55 +0800</lastBuildDate><atom:link href="https://678210.xyz/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>使用Nginx对TShock进行TCP/UDP代理</title><link>https://678210.xyz/nginx_stream_tshock/</link><pubDate>Wed, 26 Jun 2024 20:14:55 +0800</pubDate><guid>https://678210.xyz/nginx_stream_tshock/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;给朋友分享自己的泰拉瑞亚服务，如果总是把服务器的ip暴露出去（如&lt;code&gt;172.xxx.xxx.120:7777&lt;/code&gt;），既不优雅，也不安全，如果能用自己的域名就好了&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="步骤1"&gt;步骤1&lt;/h3&gt;
+&lt;p&gt;创建一个三级域名(如我的：tl.yaowan.icu)，将其解析到自己的服务器ip&lt;/p&gt;
+&lt;p&gt;并在安全组中开启一个向外暴露的端口（如泰拉瑞亚：7777端口）&lt;/p&gt;
+&lt;p&gt;（简单，不赘述）&lt;/p&gt;
+&lt;h3 id="步骤2"&gt;步骤2&lt;/h3&gt;
+&lt;p&gt;在服务器安装Nginx&lt;/p&gt;
+&lt;p&gt;TShock使用TCP协议传输数据，需要使用Nginx的stream模块进行代理传输，而Nginx默认未添加stream模块故需要进行安装&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果使用&lt;code&gt;yum install -y nginx&lt;/code&gt;安装的Nginx，可使用&lt;code&gt;yum install nginx-mod-stream&lt;/code&gt;直接加装stream模块&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;安装完后，在nginx.conf添加如下stream流配置：&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;stream {
+# Terraria game TCP config
+upstream terraria {
+server 127.0.0.1:7778; # 泰拉瑞亚服务器监听的地址和端口
+}
+server {
+listen 7777; # 这是对外部暴露的端口，也是游戏客户端将连接的端口
+proxy_pass terraria;
+}
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;blockquote&gt;
+&lt;p&gt;&lt;em&gt;1.&lt;/em&gt; 监听游戏运行端口，即TShock其中泰拉瑞亚服务时设置的端口，此处我设置成7778（可自行配置成需要的端口）&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;2.&lt;/em&gt; 对外暴露的端口，即步骤一中开放的那个端口，此处我配置成泰拉瑞亚默认端口7777&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;这两处端口不能写成一样的了，否则会冲突；&lt;/p&gt;
+&lt;p&gt;stream块是与http块同一层级的块，勿将stream块写在http块中；&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;添加完配置后，控制台执行&lt;code&gt;nginx -t&lt;/code&gt;命令对添加的配置进行检测，如果返回如下结果，则表示配置没问题&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;执行&lt;code&gt;nginx -s reload&lt;/code&gt;命令使Nginx加载修改后的配置&lt;/p&gt;
+&lt;h3 id="步骤3"&gt;步骤3&lt;/h3&gt;
+&lt;p&gt;运行TShock，并且在设置端口时，设置成Nginx配置中监听的游戏端口（如上述配置中的7778），此时就可以将你的游戏服务器，以&lt;code&gt;&amp;lt;你的域名&amp;gt;:&amp;lt;端口&amp;gt;&lt;/code&gt;形式分享出去了&lt;/p&gt;
+&lt;p&gt;比如我的服务器：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;tl.yaowan.icu:7777&lt;/code&gt; 密码你猜&lt;/p&gt;</description></item><item><title>CentOS安装 TShock 和 .NET 6.0</title><link>https://678210.xyz/install_tshock/</link><pubDate>Wed, 26 Jun 2024 13:37:29 +0800</pubDate><guid>https://678210.xyz/install_tshock/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;TShock是Terraria的开服工具，运行需要.NET 6.0.16&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;安装步骤：&lt;/p&gt;
+&lt;h3 id="一安装net"&gt;一、安装.NET&lt;/h3&gt;
+&lt;p&gt;1、下载&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;首先根据服务器架构选择.net版本&lt;/p&gt;
+&lt;p&gt;命令&lt;code&gt;lscpu&lt;/code&gt;查看当前服务器架构：&lt;br&gt;
+&lt;img src="https://yaowan.icu/img/2024/06/image.png" alt=""&gt;&lt;/p&gt;
+&lt;p&gt;进入微软的下载页面，选择需要的版本（.net6.0.16）&lt;br&gt;
+&lt;a href="https://dotnet.microsoft.com/zh-cn/download/dotnet/6.0"&gt;https://dotnet.microsoft.com/zh-cn/download/dotnet/6.0&lt;/a&gt;&lt;br&gt;
+&lt;img src="https://yaowan.icu/img/2024/06/image%202.png" alt=""&gt;&lt;br&gt;
+点击后，浏览器会进行下载，复制下载链接，接下来有用（浏览器下载的不用管它，删掉）&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://download.visualstudio.microsoft.com/download/pr/877a2d48-74ed-484b-85a1-605078f5e718/752ce1e38b76ffb5ebfc2ee1772307bf/aspnetcore-runtime-6.0.16-linux-x64.tar.gz" title="https://download.visualstudio.microsoft.com/download/pr/877a2d48-74ed-484b-85a1-605078f5e718/752ce1e38b76ffb5ebfc2ee1772307bf/aspnetcore-runtime-6.0.16-linux-x64.tar.gz"&gt;https://download.visualstudio.microsoft.com/download/pr/877a2d48-74ed-484b-85a1-605078f5e718/752ce1e38b76ffb5ebfc2ee1772307bf/aspnetcore-runtime-6.0.16-linux-x64.tar.gz&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;在&lt;code&gt;/usr/local/&lt;/code&gt;下&lt;code&gt;mkdir&lt;/code&gt;创建dotnet目录，进入目录后用&lt;code&gt;wget&lt;/code&gt;命令进行下载：&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://download.visualstudio.microsoft.com/download/pr/877a2d48-74ed-484b-85a1-605078f5e718/752ce1e38b76ffb5ebfc2ee1772307bf/aspnetcore-runtime-6.0.16-linux-x64.tar.gz"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;wget https://download.visualstudio.microsoft.com/download/pr/877a2d48-74ed-484b-85a1-605078f5e718/752ce1e38b76ffb5ebfc2ee1772307bf/aspnetcore-runtime-6.0.16-linux-x64.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;下载后用&lt;code&gt;ll&lt;/code&gt;命令能看到文件&lt;code&gt;aspnetcore-runtime-6.0.16-linux-x64.tar.gz&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;2、解压&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;tar -xvf aspnetcore-runtime-6.0.16-linux-x64.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;解压完后文件目录如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://yaowan.icu/img/2024/06/image%203.png" alt=""&gt;&lt;/p&gt;
+&lt;p&gt;3、配置环境变量&lt;/p&gt;
+&lt;p&gt;用&lt;code&gt;vim&lt;/code&gt;命令在&lt;code&gt;/etc/profile.d/&lt;/code&gt;目录下创建一个&lt;code&gt;dotnet.sh&lt;/code&gt;的环境变量配置文件&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;vim /etc/profile.d/dotnet.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;按&lt;code&gt;i&lt;/code&gt;进入编辑模式，将下列配置粘贴（CTRL+SHIFT+V）进去&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;export DOTNET_ROOT=/usr/local/dotnet
+export PATH=$DOTNET_ROOT:$PATH
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后Esc键退出编辑模式，再&lt;code&gt;:wq&lt;/code&gt;保存，即会返回到控制台&lt;/p&gt;
+&lt;p&gt;应用刚才的配置&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;source /etc/profile
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此时再输入&lt;code&gt;dotnet --info&lt;/code&gt;，能看到.NET信息说明配置成功了&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://yaowan.icu/img/2024/06/image%204.png" alt=""&gt;&lt;/p&gt;
+&lt;h3 id="二安装tshock"&gt;二、安装Tshock&lt;/h3&gt;
+&lt;p&gt;Tshock是Terraria的开服工具&lt;/p&gt;
+&lt;p&gt;1、创建目录&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;mkdir /app/tshock
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;2、Google搜索，在GitHub上找到tshock的最新版&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://yaowan.icu/img/2024/06/image%205.png" alt=""&gt;&lt;/p&gt;
+&lt;p&gt;3、下载&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/Pryaxis/TShock/releases/download/v5.2.0/TShock-5.2-for-Terraria-1.4.4.9-linux-x64-Release.zip"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;wget https://github.com/Pryaxis/TShock/releases/download/v5.2.0/TShock-5.2-for-Terraria-1.4.4.9-linux-x64-Release.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;解压zip&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;upzip TShock-5.2-for-Terraria-1.4.4.9-linux-x64-Release.zip
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;解压出来一个tar文件，再用tar命令解包&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;tar -xvf TShock-Beta-linux-x64-Release.tar
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;解压后目录结构如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://yaowan.icu/img/2024/06/image%206.png" alt=""&gt;&lt;/p&gt;
+&lt;p&gt;4、运行&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;./TShock.Server
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src="https://yaowan.icu/img/2024/06/image%207.png" alt=""&gt;&lt;/p&gt;
+&lt;p&gt;接下来就是创建泰拉瑞亚服务的内容了，很简单。&lt;/p&gt;
+&lt;p&gt;创建完后，就能在游戏里用&lt;code&gt;&amp;lt;你的ip&amp;gt;:&amp;lt;游戏端口&amp;gt;&lt;/code&gt;连接服务器了。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;每次分享服务器给朋友，都把ip分享出去，既不优雅又不安全，如果能把ip换成域名就好了，比如：tl.yaowan.icu:7777&lt;/p&gt;
+&lt;p&gt;方法：&lt;a href="https://yaowan.icu/nginx_stream_tshock/"&gt;用域名代替ip&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</description></item></channel></rss>
